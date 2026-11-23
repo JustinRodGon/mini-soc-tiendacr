@@ -6,6 +6,7 @@ css = """
 * { box-sizing: border-box; }
 body { font-family: 'Liberation Serif','DejaVu Serif',Georgia,serif; font-size: 10.5pt; line-height: 1.4; color:#1a1a1a; max-width:none; }
 h1 { font-size: 20pt; border-bottom:3px solid #1f4e79; padding-bottom:6px; color:#1f4e79; }
+h2:first-of-type { page-break-before: always; }
 h2 { font-size: 14pt; color:#1f4e79; border-bottom:1px solid #bcd; padding-bottom:3px; margin-top:22px; page-break-after:avoid; }
 h3 { font-size: 12pt; color:#2a2a2a; margin-top:16px; page-break-after:avoid; }
 h4 { font-size: 10.5pt; color:#444; page-break-after:avoid; }
