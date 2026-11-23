@@ -17,3 +17,16 @@ Capturas del panel en `docs/capturas/`.
   y el SIEM están en lista blanca para no cortar tráfico legítimo.
 - Riesgo: un atacante que falsee una IP legítima podría provocar el bloqueo de esa IP (denegación
   de servicio por la propia respuesta); por eso el timeout es corto y hay lista blanca.
+
+## Remediación y reevaluación (fase 2.8)
+Se corrigió la aplicación subiendo DVWA al nivel `impossible` (consultas preparadas/parametrizadas,
+tokens anti-CSRF y validación), vía `DVWA_NIVEL=impossible` en `/opt/tiendacr/.env`.
+
+| Ataque | Antes (low) | Después (impossible) |
+|--------|-------------|----------------------|
+| 3. Inyección SQL | sqlmap volcó la tabla `users` (hashes incluidos) | `all tested parameters do not appear to be injectable` — falla |
+| 2. Fuerza bruta | DVWA responde al formulario vulnerable | consultas preparadas + token; sin acceso |
+
+Riesgo residual: con el código corregido, la inyección SQL baja de nivel Alto a Bajo. La fuerza bruta
+se mitiga además con la respuesta automática (bloqueo de IP). Queda como control pendiente el cambio
+de la contraseña por defecto `admin/password` y añadir MFA.
