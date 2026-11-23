@@ -11,3 +11,5 @@ id_*
 .env
 wazuh-install-files.tar
 wazuh-passwords.txt
+docs/informe.html
+docs/P1_*.pdf
