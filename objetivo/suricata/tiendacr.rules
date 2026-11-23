@@ -1,0 +1,20 @@
+# Reglas propias de TiendaCR (sid 1000001+). Cada una responde a un ataque de la tabla.
+
+# Ataque 1 - Reconocimiento: muchos SYN desde una misma IP en poco tiempo (nmap -sS)
+alert tcp any any -> $HOME_NET any (msg:"TIENDACR Escaneo de puertos SYN"; flags:S,12; flow:stateless; threshold:type both, track by_src, count 25, seconds 10; classtype:attempted-recon; sid:1000001; rev:1; metadata:mitre T1046;)
+
+# Ataque 1 - Reconocimiento: detección de servicios con el motor de scripts de nmap (nmap -sV/-sC)
+alert http any any -> $HOME_NET any (msg:"TIENDACR Nmap Scripting Engine en HTTP"; flow:established,to_server; http.user_agent; content:"Nmap Scripting Engine"; nocase; classtype:attempted-recon; sid:1000002; rev:1; metadata:mitre T1595;)
+
+# Ataque 2 - Fuerza bruta: más de 15 intentos al formulario de login en 30 s desde la misma IP
+alert http any any -> $HOME_NET any (msg:"TIENDACR Fuerza bruta contra login de DVWA"; flow:established,to_server; http.uri; content:"/vulnerabilities/brute/"; content:"password="; threshold:type threshold, track by_src, count 15, seconds 30; classtype:attempted-user; sid:1000003; rev:1; metadata:mitre T1110.001;)
+
+# Ataque 3 - Inyección SQL: UNION ... SELECT o comillas con OR en la URL
+alert http any any -> $HOME_NET any (msg:"TIENDACR Inyeccion SQL UNION SELECT"; flow:established,to_server; http.uri; content:"union"; nocase; content:"select"; nocase; distance:0; classtype:web-application-attack; sid:1000004; rev:1; metadata:mitre T1190;)
+alert http any any -> $HOME_NET any (msg:"TIENDACR Inyeccion SQL tautologia OR"; flow:established,to_server; http.uri; pcre:"/(%27|')\s*(or|%6f%72)\s*(%27|'|\d)/Ui"; classtype:web-application-attack; sid:1000005; rev:1; metadata:mitre T1190;)
+
+# Ataque 3 - Herramienta sqlmap identificada por su User-Agent
+alert http any any -> $HOME_NET any (msg:"TIENDACR Herramienta sqlmap"; flow:established,to_server; http.user_agent; content:"sqlmap"; nocase; classtype:web-application-attack; sid:1000006; rev:1; metadata:mitre T1190;)
+
+# Ataque 4 - Subida de webshell PHP al formulario de carga
+alert http any any -> $HOME_NET any (msg:"TIENDACR Posible subida de webshell PHP"; flow:established,to_server; http.uri; content:"/vulnerabilities/upload/"; http.request_body; content:"<?php"; nocase; classtype:web-application-attack; sid:1000007; rev:1; metadata:mitre T1505.003;)

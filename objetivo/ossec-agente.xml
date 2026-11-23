@@ -1,0 +1,20 @@
+<!-- TIENDACR: bloque que setup.sh agrega al final de /var/ossec/etc/ossec.conf del agente -->
+<ossec_config>
+  <localfile>
+    <log_format>apache</log_format>
+    <location>/var/log/dvwa/access.log</location>
+  </localfile>
+  <localfile>
+    <log_format>apache</log_format>
+    <location>/var/log/dvwa/error.log</location>
+  </localfile>
+  <localfile>
+    <log_format>json</log_format>
+    <location>/var/log/suricata/eve.json</location>
+  </localfile>
+  <syscheck>
+    <directories realtime="yes" report_changes="yes">/srv/dvwa/uploads</directories>
+    <directories realtime="yes" report_changes="yes">/opt/tiendacr</directories>
+    <directories realtime="yes">/etc/ssh</directories>
+  </syscheck>
+</ossec_config>

@@ -1,0 +1,14 @@
+<!-- Red del laboratorio: NAT para que las VM descarguen paquetes, IP fijas por MAC -->
+<network>
+  <name>soc-net</name>
+  <forward mode='nat'/>
+  <bridge name='virbr-soc' stp='on' delay='0'/>
+  <ip address='10.10.10.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.10.10.100' end='10.10.10.150'/>
+      <host mac='52:54:00:50:c0:10' name='kali' ip='10.10.10.10'/>
+      <host mac='52:54:00:50:c0:20' name='objetivo' ip='10.10.10.20'/>
+      <host mac='52:54:00:50:c0:30' name='siem' ip='10.10.10.30'/>
+    </dhcp>
+  </ip>
+</network>

@@ -1,0 +1,13 @@
+# Imágenes de disco y semillas de las VM (pesan GB, se generan con infra/crear-vms.sh)
+vm/
+*.qcow2
+*.img
+*.iso
+*.tar.xz
+# Nunca subir llaves ni credenciales
+*.pem
+*_ed25519
+id_*
+.env
+wazuh-install-files.tar
+wazuh-passwords.txt

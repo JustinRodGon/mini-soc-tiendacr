@@ -1,0 +1,28 @@
+# DVWA (aplicación vulnerable de TiendaCR) + MariaDB.
+# DVWA usa la red del host para que UFW y la respuesta activa de Wazuh la protejan:
+# un puerto publicado por Docker se salta las reglas de UFW.
+services:
+  dvwa:
+    image: ghcr.io/digininja/dvwa:latest
+    network_mode: host
+    environment:
+      DB_SERVER: 127.0.0.1
+      DB_PASSWORD: ${DB_PASSWORD:?falta DB_PASSWORD en .env}
+      DEFAULT_SECURITY_LEVEL: ${DVWA_NIVEL:-low}   # low = antes; impossible = después de remediar
+    volumes:
+      - /var/log/dvwa:/var/log/apache2                    # registros web visibles para el agente Wazuh
+      - /srv/dvwa/uploads:/var/www/html/hackable/uploads  # carpeta de subidas vigilada por FIM
+    depends_on: [db]
+    restart: unless-stopped
+  db:
+    image: docker.io/library/mariadb:10
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "1"
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports: ["127.0.0.1:3306:3306"]   # solo local, nunca expuesta
+    volumes: [db:/var/lib/mysql]
+    restart: unless-stopped
+volumes:
+  db:

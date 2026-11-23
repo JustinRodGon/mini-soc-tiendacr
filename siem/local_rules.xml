@@ -1,0 +1,39 @@
+<!-- Reglas propias de TiendaCR para el manager Wazuh (/var/ossec/etc/rules/local_rules.xml) -->
+<group name="tiendacr,">
+
+  <!-- Ataque 2: cada intento contra el formulario de login de DVWA -->
+  <rule id="100100" level="3">
+    <if_sid>31100</if_sid>
+    <url>/vulnerabilities/brute/</url>
+    <match>password=</match>
+    <description>TiendaCR: intento de inicio de sesión en DVWA desde $(srcip)</description>
+    <group>authentication_attempt,</group>
+  </rule>
+
+  <!-- Ataque 2: 10 intentos en 30 s desde la misma IP = fuerza bruta (dispara respuesta activa) -->
+  <rule id="100101" level="12" frequency="10" timeframe="30">
+    <if_matched_sid>100100</if_matched_sid>
+    <same_source_ip />
+    <description>TiendaCR: fuerza bruta contra el login de DVWA desde $(srcip)</description>
+    <mitre><id>T1110.001</id></mitre>
+    <group>authentication_failures,attack,</group>
+  </rule>
+
+  <!-- Suricata: sube a nivel 10 las alertas de nuestras reglas propias (sid 1000001-1000099) -->
+  <rule id="100110" level="10">
+    <if_sid>86601</if_sid>
+    <field name="alert.signature">^TIENDACR</field>
+    <description>TiendaCR IDS: $(alert.signature) desde $(src_ip)</description>
+    <group>ids,tiendacr_ids,</group>
+  </rule>
+
+  <!-- Ataque 4: archivo .php nuevo en la carpeta de subidas = posible webshell -->
+  <rule id="100120" level="13">
+    <if_sid>554</if_sid>
+    <field name="file" type="pcre2">^/srv/dvwa/uploads/.+\.(php|phtml|phar)$</field>
+    <description>TiendaCR: posible webshell creada en $(file)</description>
+    <mitre><id>T1505.003</id></mitre>
+    <group>syscheck,webshell,</group>
+  </rule>
+
+</group>

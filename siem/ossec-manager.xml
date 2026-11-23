@@ -1,0 +1,15 @@
+<!-- TIENDACR: bloque que siem/setup.sh agrega a /var/ossec/etc/ossec.conf del manager -->
+<ossec_config>
+  <global>
+    <!-- Nunca bloquear la laptop del equipo ni el propio SIEM (evita dejarnos fuera) -->
+    <white_list>10.10.10.1</white_list>
+    <white_list>10.10.10.30</white_list>
+  </global>
+  <!-- Respuesta automática: bloquear la IP atacante 3 minutos en el firewall del agente -->
+  <active-response>
+    <command>firewall-drop</command>
+    <location>local</location>
+    <rules_id>100101,5712,5763</rules_id>
+    <timeout>180</timeout>
+  </active-response>
+</ossec_config>
