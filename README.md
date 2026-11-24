@@ -74,6 +74,15 @@ Resumen de qué detecta cada uno:
 | 3 | `03-sqli.sh` | T1190 | Suricata 1000004 / 1000005 / 1000006 |
 | 4 | `04-webshell.sh` | T1505.003 | Wazuh FIM 100120 |
 
+## Evidencias
+
+El detalle está en [docs/evidencias.md](docs/evidencias.md) y todas las capturas en
+[docs/capturas/](docs/capturas/). Algunas:
+
+![Dashboard MITRE en Wazuh](docs/capturas/01-dashboard-mitre.jpg)
+
+![Respuesta automática (reglas 651/652)](docs/capturas/07-respuesta-automatica-651-652.jpg)
+
 ## Estructura
 
 ```
