@@ -1,0 +1,5 @@
+# todo lo de texto con LF (los scripts corren en linux)
+* text=auto eol=lf
+*.jpg binary
+*.png binary
+*.pdf binary
