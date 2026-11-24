@@ -22,6 +22,7 @@ blockquote p { margin:3px 0; }
 a { color:#1f4e79; text-decoration:none; }
 strong { color:#111; }
 hr { border:none; border-top:1px solid #ccd; margin:18px 0; }
+img { max-width:100%; height:auto; border:1px solid #bcd; margin:8px 0; page-break-inside:avoid; }
 ul,ol { margin:6px 0 6px 0; }
 """
 html = f"""<!doctype html><html lang="es"><head><meta charset="utf-8">

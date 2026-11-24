@@ -594,4 +594,52 @@ El riesgo residual de R2 y R7 queda en Medio porque dependen además de controle
 - **Anexo A.** Repositorio con el README reproducible, scripts de infraestructura y ataque, reglas
   propias y archivos de configuración.
 - **Anexo B.** `docs/evidencias.md`: tabla de detecciones con conteos por regla.
-- **Anexo C.** Capturas del panel de Wazuh (dashboard, alertas por ataque, bloqueo automático).
+- **Anexo C.** Capturas del panel de Wazuh (dashboard, alertas por ataque, bloqueo automático),
+  tomadas en `https://10.10.10.30` sobre las ejecuciones reales del 23/11/2026.
+
+### Anexo C — Evidencia visual del panel Wazuh
+
+**C.1 Resumen del SOC.** Agente del objetivo activo y alertas de las últimas 24 h clasificadas por
+severidad (2 de nivel alto = la regla propia 100101 de fuerza bruta).
+
+![Resumen del SOC en Wazuh](capturas/00-overview.jpg)
+
+**C.2 Threat Hunting — Top 10 MITRE ATT&CK.** Las técnicas observadas coinciden con los ataques
+realizados: Exploit Public-Facing Application (T1190), Password Guessing (T1110), Web Shell
+(T1505.003) y Remote Services.
+
+![Dashboard de Threat Hunting con mapa MITRE](capturas/01-dashboard-mitre.jpg)
+
+**C.3 Fuerza bruta.** Regla propia `100101` (nivel 12): *"TiendaCR: fuerza bruta contra el login de
+DVWA desde 10.10.10.10"*, disparada tras superar el umbral de intentos fallidos.
+
+![Alerta de fuerza bruta 100101](capturas/02-fuerza-bruta-100101.jpg)
+
+**C.4 Webshell (FIM en tiempo real).** Regla propia `100120` (nivel 13): *"posible webshell creada
+en /srv/dvwa/uploads/tienda_shell.php"*, detectada por integridad de archivos en el instante de la
+subida.
+
+![Alerta de webshell 100120](capturas/03-webshell-100120.jpg)
+
+**C.5 Inyección SQL — herramienta.** 826 alertas de la regla `100110` (Suricata elevado):
+*"TIENDACR Herramienta sqlmap desde 10.10.10.10"*; el volumen refleja las cientos de peticiones de
+sqlmap.
+
+![Alertas de sqlmap 100110](capturas/04-sqli-sqlmap-100110.jpg)
+
+**C.6 Inyección SQL — payload.** 90 alertas con las firmas propias del contenido malicioso:
+*"TIENDACR Inyeccion SQL UNION SELECT"* y *"tautologia OR"*, detectando la inyección aunque se
+hiciera a mano, sin herramienta.
+
+![Alertas de inyección SQL UNION/tautología](capturas/05-sqli-union-tautologia.jpg)
+
+**C.7 Reconocimiento.** 9 alertas *"TIENDACR Escaneo de puertos SYN desde 10.10.10.10"* (regla
+Suricata de escaneo SYN) generadas durante el `nmap` inicial.
+
+![Alertas de escaneo de puertos SYN](capturas/06-recon-syn-100110.jpg)
+
+**C.8 Respuesta automática.** Bloqueo y desbloqueo automáticos de la IP atacante: regla `651`
+*"Host Blocked by firewall-drop Active Response"* (13:40:32) y regla `652` *"Host Unblocked"*
+(13:43:24), confirmando el `timeout` de 180 s configurado.
+
+![Bloqueo y desbloqueo automáticos 651/652](capturas/07-respuesta-automatica-651-652.jpg)
