@@ -3,7 +3,7 @@
 **Curso:** ITI-922 Seguridad de TI II · **Proyecto 2** (15 %) · Prof. Marcos C.
 **Integrantes:** Rodríguez González, Justin · Rojas Morales, Cristian
 **Fecha:** 25 de noviembre de 2026
-**Repositorio:** _(URL del repositorio público de GitHub)_
+**Repositorio:** https://github.com/JustinRodGon/mini-soc-tiendacr
 
 > **Declaración de uso de IA.** Se utilizó un asistente de IA (Claude) para apoyar la
 > redacción del informe, la generación de los scripts de despliegue y de ataque, y la
