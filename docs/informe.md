@@ -1,7 +1,7 @@
 # Mini SOC en la nube — TiendaCR
 
 **Curso:** ITI-922 Seguridad de TI II · **Proyecto 2** (15 %) · Prof. Marcos C.
-**Integrantes:** _Apellido1, Nombre1_ · _Apellido2, Nombre2_
+**Integrantes:** Rodríguez González, Justin · Rojas Morales, Cristian
 **Fecha:** 25 de noviembre de 2026
 **Repositorio:** _(URL del repositorio público de GitHub)_
 
