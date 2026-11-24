@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Cortafuegos del servidor objetivo: denegación por defecto en ambos sentidos
-# y solo lo estrictamente necesario. Las reglas están justificadas en docs/reglas-acceso.md.
+# y solo lo estrictamente necesario. Las reglas están justificadas en docs/informe.md (§5).
 set -euo pipefail
 ADMIN=10.10.10.1    # laptop del equipo (host KVM)
 KALI=10.10.10.10    # máquina atacante del equipo
