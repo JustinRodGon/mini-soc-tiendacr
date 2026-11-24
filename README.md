@@ -71,9 +71,10 @@ kali bash /ataques/04-webshell.sh     # 4. subida de webshell
 infra/      red, creación de VM y aprovisionamiento (cloud-init)
 objetivo/   DVWA (docker-compose), UFW, Suricata y config del agente Wazuh
 siem/       reglas propias y respuesta automática del manager Wazuh
-kali/        imagen y herramientas de la máquina atacante
+kali/       imagen y herramientas de la máquina atacante
 ataques/    los 4 scripts de ataque
 docs/       informe.md, evidencias.md y capturas/
+vm/         imágenes base de las VM (no se suben, ver vm/DESCARGAR.md)
 ```
 
 ## Seguridad del repositorio
