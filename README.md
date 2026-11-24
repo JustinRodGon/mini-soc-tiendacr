@@ -65,6 +65,15 @@ kali bash /ataques/03-sqli.sh         # 3. inyección SQL (manual + sqlmap)
 kali bash /ataques/04-webshell.sh     # 4. subida de webshell
 ```
 
+Resumen de qué detecta cada uno:
+
+| # | Script | MITRE ATT&CK | Regla que lo detecta |
+|---|--------|--------------|----------------------|
+| 1 | `01-recon.sh` | T1046, T1595 | Suricata 1000001 / 1000002 |
+| 2 | `02-fuerza-bruta.sh` | T1110.001 | Wazuh 100101 (+ Suricata 1000003) → bloqueo automático |
+| 3 | `03-sqli.sh` | T1190 | Suricata 1000004 / 1000005 / 1000006 |
+| 4 | `04-webshell.sh` | T1505.003 | Wazuh FIM 100120 |
+
 ## Estructura
 
 ```
