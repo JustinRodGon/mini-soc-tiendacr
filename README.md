@@ -55,6 +55,9 @@ ssh -i ~/.ssh/minisoc_ed25519 soc@10.10.10.30 "sudo grep -A2 'User: admin' /root
 
 ## Ataques
 
+Para empezar una demostración desde cero (borra alertas previas de Wazuh, webshells y bloqueos):
+`./infra/reset-demo.sh`.
+
 Desde la máquina atacante, dentro del contenedor Kali (`~/ataques` se comparte como `/ataques`):
 
 ```bash

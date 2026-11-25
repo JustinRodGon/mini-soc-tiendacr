@@ -21,6 +21,13 @@ objetivo manda la alerta al SIEM → en el panel (`https://10.10.10.30`) aparece
 
 ## 1. Preparar las dos ventanas
 
+**Antes de empezar**, desde la laptop deje el SOC en cero (sin alertas viejas, sin webshell y sin
+la IP atacante bloqueada) y espere un minuto a que el agente reconecte:
+
+```bash
+./infra/reset-demo.sh
+```
+
 Trabaje con **dos ventanas a la vista** al mismo tiempo:
 
 - **Ventana A — Terminal de Kali** (desde donde ataca).
@@ -101,7 +108,7 @@ rule.id:651 or rule.id:652
 **Qué aparece:** *"Host Blocked by firewall-drop Active Response"* → *"Host Unblocked"* (~180 s
 después). **Wazuh bloqueó la IP de Kali solo, sin intervención humana.**
 
-**Demostrarlo en vivo** — justo después de la fuerza bruta, en Kali:
+**Demostrarlo en vivo** — unos 15 s después de la fuerza bruta (o cuando ya aparezca la regla 651), en Kali:
 ```bash
 curl -m 5 -s -o /dev/null -w "%{http_code}\n" http://10.10.10.20
 ```
