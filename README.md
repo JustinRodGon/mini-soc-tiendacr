@@ -78,9 +78,33 @@ Resumen de qué detecta cada uno:
 ## Evidencias
 
 El detalle está en [docs/evidencias.md](docs/evidencias.md) y todas las capturas en
-[docs/capturas/](docs/capturas/). Algunas:
+[docs/capturas/](docs/capturas/). Capturas tomadas del panel Wazuh sobre las ejecuciones reales:
+
+**Resumen del SOC** — agente activo y alertas por severidad:
+
+![Resumen del SOC en Wazuh](docs/capturas/00-overview.jpg)
+
+**Panorama de amenazas** — Top 10 técnicas MITRE ATT&CK detectadas:
 
 ![Dashboard MITRE en Wazuh](docs/capturas/01-dashboard-mitre.jpg)
+
+**Ataque 1 — Reconocimiento** (escaneo SYN, Suricata):
+
+![Alerta de escaneo de puertos SYN](docs/capturas/06-recon-syn-100110.jpg)
+
+**Ataque 2 — Fuerza bruta** (regla 100101, nivel 12):
+
+![Alerta de fuerza bruta 100101](docs/capturas/02-fuerza-bruta-100101.jpg)
+
+**Ataque 3 — Inyección SQL** (firmas UNION SELECT / tautología):
+
+![Alerta de inyección SQL](docs/capturas/05-sqli-union-tautologia.jpg)
+
+**Ataque 4 — Webshell** (FIM, regla 100120, nivel 13):
+
+![Alerta de webshell 100120](docs/capturas/03-webshell-100120.jpg)
+
+**Respuesta automática** — bloqueo y desbloqueo de la IP atacante (reglas 651/652):
 
 ![Respuesta automática (reglas 651/652)](docs/capturas/07-respuesta-automatica-651-652.jpg)
 
