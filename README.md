@@ -63,6 +63,7 @@ kali bash /ataques/01-recon.sh        # 1. reconocimiento (nmap)
 kali bash /ataques/02-fuerza-bruta.sh # 2. fuerza bruta (app | ssh)
 kali bash /ataques/03-sqli.sh         # 3. inyección SQL (manual + sqlmap)
 kali bash /ataques/04-webshell.sh     # 4. subida de webshell
+kali bash /ataques/after.sh           # remediación: repite 2 y 3 en nivel impossible
 ```
 
 Resumen de qué detecta cada uno:
@@ -90,7 +91,7 @@ infra/      red, creación de VM y aprovisionamiento (cloud-init)
 objetivo/   DVWA (docker-compose), UFW, Suricata y config del agente Wazuh
 siem/       reglas propias y respuesta automática del manager Wazuh
 kali/       imagen y herramientas de la máquina atacante
-ataques/    los 4 scripts de ataque
+ataques/    los 4 scripts de ataque + after.sh (remediación en nivel impossible)
 docs/       informe.md, evidencias.md y capturas/
 vm/         imágenes base de las VM (no se suben, ver vm/DESCARGAR.md)
 ```
