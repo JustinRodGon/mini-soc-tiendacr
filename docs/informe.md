@@ -485,6 +485,13 @@ automatizó el ataque y **volcó la tabla `dvwa.users` completa**, incluidos los
 credenciales confirma el impacto *Confidentiality: High* del CVSS. Corresponde a MITRE *Exploit
 Public-Facing Application* (T1190).
 
+Evidencia en el registro web (`/var/log/dvwa/access.log`): la petición con UNION SELECT quedó
+registrada a las 16:56:53 y la alerta 1000004 llegó al SIEM a las 16:56:54, un segundo después:
+
+```
+10.10.10.10 - - [25/Nov/2026:16:56:53 +0000] "GET /vulnerabilities/sqli/?id=1'+UNION+SELECT+user,password+FROM+users--+-&Submit=Submit HTTP/1.1" 200 5614 "-" "curl/8.22.0"
+```
+
 #### 7.4 Ataque 4 — Subida de webshell
 
 Se subió un archivo PHP (`tienda_shell.php`) por el formulario de carga de DVWA, haciéndolo pasar
@@ -494,6 +501,14 @@ integridad de archivos de Wazuh **en tiempo real**: la aparición del `.php` dis
 se logró **ejecución de comandos** en el servidor. Corresponde a MITRE *Server Software Component:
 Web Shell* (T1505.003). Este ataque ilustra el valor de la defensa en capas: el IDS de red ve poco
 de un archivo ya subido, pero el HIDS lo detecta por el cambio en el sistema de archivos.
+
+Evidencia en el registro web: la subida y la ejecución de la webshell a las 16:57:15; la alerta
+100120 llegó al SIEM a las 16:57:15,8, en menos de un segundo:
+
+```
+10.10.10.10 - - [25/Nov/2026:16:57:15 +0000] "POST /vulnerabilities/upload/ HTTP/1.1" 200 4942 "-" "curl/8.22.0"
+10.10.10.10 - - [25/Nov/2026:16:57:15 +0000] "GET /hackable/uploads/tienda_shell.php?c=id HTTP/1.1" 200 313 "-" "curl/8.22.0"
+```
 
 El detalle con conteos por regla está en el anexo `docs/evidencias.md`.
 
