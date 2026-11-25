@@ -172,7 +172,7 @@ cumple el administrador del host KVM.
 | Monitoreo, registros, detección y respuesta | **Cliente** | Suricata + Wazuh |
 | Cifrado de datos y gestión de llaves | **Cliente** (el servicio lo ofrece el proveedor) | Hashes de contraseñas |
 
-La lección central (Dotson, 2019) es que en IaaS **casi todo lo que está por encima del hipervisor
+La lección central (Dotson, 2019; Guijarro Olivares et al., 2019) es que en IaaS **casi todo lo que está por encima del hipervisor
 es responsabilidad del cliente**. El proveedor garantiza la seguridad *de* la nube —centros de
 datos, hardware, hipervisor—; el cliente garantiza la seguridad *en* la nube —SO, red virtual,
 aplicación, datos, accesos y monitoreo—. Un ejemplo concreto: si un atacante aprovecha la inyección
@@ -375,7 +375,7 @@ superficie de ataque a dos puertos por máquina y solo desde dos orígenes conoc
 
 El monitoreo combina un **IDS de red** (Suricata, que ve el tráfico) y un **HIDS/SIEM** (Wazuh, que
 ve el host y correlaciona). El enunciado pedía 2 reglas propias de Suricata y 1 de Wazuh; se
-entregaron **7 y 3** respectivamente, cada una ligada a un ataque de la tabla.
+entregaron **7 y 4** respectivamente, cada una ligada a un ataque de la tabla.
 
 #### 6.1 Suricata — reglas propias (`objetivo/suricata/tiendacr.rules`)
 
@@ -406,7 +406,30 @@ ataque suele disparar tanto una firma pública como la regla propia, lo que vali
 
 El agente del objetivo envía al manager los registros web (`access.log`, `error.log`), las alertas
 de Suricata (`eve.json`) y los eventos de integridad de archivos en tiempo real sobre
-`/srv/dvwa/uploads`, `/opt/tiendacr` y `/etc/ssh`.
+`/srv/dvwa/uploads`, `/opt/tiendacr` y `/etc/ssh`. Además lee por defecto el diario del sistema
+(journald), de donde salen los eventos de **autenticación**: inicios de sesión SSH (regla 5715),
+sesiones PAM (5501/5502) y uso de `sudo` (5402).
+
+#### 6.3 Detección de vulnerabilidades
+
+El módulo *Vulnerability Detection* de Wazuh está activo en el manager
+(`<vulnerability-detection><enabled>yes</enabled>`) y cruza el inventario de paquetes que envía el
+agente (*syscollector*) con los avisos de seguridad de Canonical y de la NVD, actualizados cada 60
+minutos. El 25/11/2026 reportó **4302 vulnerabilidades** en el servidor objetivo:
+
+| Severidad | Crítica | Alta | Media | Baja | Pendiente de evaluar |
+|---|---|---|---|---|---|
+| Cantidad | 35 | 1104 | 1793 | 388 | 982 |
+
+Casi todas (4298 de 4302, incluidas las 35 críticas) están en los dos paquetes de kernel instalados
+(`linux-image-6.8.0-147` y `-149`), por ejemplo CVE-2026-74612 (CVSS 10.0); las otras cuatro son de
+`libhtp2` y `suricata-update`. El tratamiento es aplicar las actualizaciones (`apt upgrade`),
+reiniciar con el kernel nuevo y retirar el anterior, que es el que acumula más avisos (3266); el riesgo R6 (software sin parches) de la
+matriz se apoya en esta evidencia. La cifra total es alta porque el detector cuenta cada CVE por
+paquete y versión, incluidos los que Ubuntu aún no ha corregido, así que debe leerse como un
+inventario para priorizar, no como 4302 fallas explotables.
+
+![Panel de detección de vulnerabilidades en Wazuh](capturas/08-vulnerabilidades.jpg)
 
 ### 7. Ataques controlados y detecciones (2.4)
 
@@ -415,10 +438,18 @@ técnica MITRE ATT&CK. Todos se ejecutaron desde la máquina atacante contra 10.
 
 | # | Ataque | Herramienta / comando | Regla que detectó | Tiempo | MITRE |
 |---|---|---|---|---|---|
-| 1 | Reconocimiento | `nmap -sS -sV -p- 10.10.10.20` | Suricata 1000001 + 1000002 + ET SCAN | segundos | T1046, T1595 |
+| 1 | Reconocimiento | `nmap -sS -sV -p- 10.10.10.20` | Suricata 1000001 + 1000002 + ET SCAN | 3,5 s | T1046, T1595 |
 | 2 | Fuerza bruta | 20 intentos a `/vulnerabilities/brute/` | Wazuh 100100 → 100101 (nivel 12) + Suricata 1000003 | ~9 s | T1110.001 |
-| 3 | Inyección SQL | manual + `sqlmap --dump` | Suricata 1000004/1000005/1000006 | segundos | T1190 |
-| 4 | Webshell | `.php` subido a `/vulnerabilities/upload/` | Wazuh FIM 100120 (tiempo real) | segundos | T1505.003 |
+| 3 | Inyección SQL | manual + `sqlmap --dump` | Wazuh 31171 + Suricata 1000004/1000005/1000006 | ~1 s | T1190 |
+| 4 | Webshell | `.php` subido a `/vulnerabilities/upload/` | Wazuh FIM 100120 (tiempo real) + Suricata 1000007 | < 1 s | T1505.003 |
+
+El tiempo es el que pasa desde que el script lanza el primer paquete o petición maliciosa (hora de
+la máquina atacante) hasta la marca de tiempo de la primera alerta en el manager de Wazuh. Las tres
+máquinas sincronizan su reloj por NTP. Medición del 25/11/2026, con los ataques en el orden de la
+demostración. Un hallazgo de la medición: el escaneo completo (`nmap -p-`) genera cientos de miles
+de eventos `flow` en `eve.json` y llena la cola del agente (alertas 202/203 de Wazuh); mientras se
+vacía, las alertas llegan con unos 10 s de retraso, como le ocurrió a la fuerza bruta. Con la cola
+libre, la SQLi y la webshell se alertan en alrededor de un segundo.
 
 #### 7.1 Ataque 1 — Reconocimiento
 
@@ -562,7 +593,7 @@ El riesgo residual de R2 y R7 queda en Medio porque dependen además de controle
 ## 12. Referencias (APA)
 
 - Dotson, C. (2019). *Practical cloud security: A guide for secure design and deployment*. O'Reilly Media.
-- Guijarro Rodríguez, A. et al. (2020). *DevOps y seguridad cloud*. Editorial Universitaria.
+- Guijarro Olivares, J., Caparrós Ramírez, J. y Cubero Luque, L. (2019). *DevOps y seguridad cloud*. Editorial UOC.
 - Wazuh Inc. (2026). *Wazuh documentation (v4.14)*. https://documentation.wazuh.com/
 - Open Information Security Foundation. (2026). *Suricata user guide (v7)*. https://docs.suricata.io/
 - National Institute of Standards and Technology. (2012). *Guide for conducting risk assessments (NIST SP 800-30 Rev. 1)*. https://doi.org/10.6028/NIST.SP.800-30r1

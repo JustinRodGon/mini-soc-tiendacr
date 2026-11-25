@@ -5,10 +5,10 @@ Capturas del panel en `docs/capturas/`.
 
 | N.º | Ataque | Herramienta/comando | Regla que detectó | Tiempo a la alerta | MITRE ATT&CK |
 |-----|--------|---------------------|-------------------|--------------------|--------------|
-| 1 | Reconocimiento | `nmap -sS -sV -p- 10.10.10.20` | Suricata 1000001 (SYN propia) + 1000002 (NSE) + ET SCAN | segundos | T1046, T1595 |
+| 1 | Reconocimiento | `nmap -sS -sV -p- 10.10.10.20` | Suricata 1000001 (SYN propia) + 1000002 (NSE) + ET SCAN | 3,5 s | T1046, T1595 |
 | 2 | Fuerza bruta (login) | `02-fuerza-bruta.sh app` | Wazuh 100100→100101 (nivel 12) + Suricata 1000003 | ~9 s (10 intentos) | T1110.001 |
-| 3 | Inyección SQL | `03-sqli.sh` (manual + sqlmap) | Suricata 1000004/1000005/1000006 (sqlmap volcó la tabla users) | segundos | T1190 |
-| 4 | Webshell | `04-webshell.sh` | Wazuh FIM 100120 (tiempo real) | segundos | T1505.003 |
+| 3 | Inyección SQL | `03-sqli.sh` (manual + sqlmap) | Wazuh 31171 + Suricata 1000004/1000005/1000006 (sqlmap volcó la tabla users) | ~1 s | T1190 |
+| 4 | Webshell | `04-webshell.sh` | Wazuh FIM 100120 (tiempo real) + Suricata 1000007 | < 1 s | T1505.003 |
 
 ## Respuesta automática (fase 2.6)
 - Disparador: regla 100101 (10 intentos de login en 30 s desde la misma IP).
