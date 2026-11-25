@@ -35,7 +35,7 @@
 
 ---
 
-## Resumen ejecutivo
+## 1. Resumen ejecutivo
 
 Se diseñó y operó un centro de operaciones de seguridad (SOC) mínimo para la tienda en línea
 ficticia **TiendaCR**. El SOC protege un servidor web vulnerable (DVWA sobre contenedor) con
@@ -62,7 +62,7 @@ a Bajo (2) y se comprueba con la misma herramienta de ataque.
 
 ---
 
-## Introducción y objetivos
+## 2. Introducción y objetivos
 
 La migración de servicios a la nube traslada parte de la seguridad al proveedor, pero deja en manos
 del cliente la protección del sistema operativo, la aplicación, los datos y el acceso. Muchas
@@ -89,9 +89,9 @@ sección se conecta con la evidencia recogida en el laboratorio.
 
 ---
 
-## Fase 1. Investigación
+## 3. Fase 1 — Investigación
 
-### 1.1 Comparativa de herramientas de seguridad en la nube
+### 3.1 Comparativa de herramientas de seguridad en la nube (1.1)
 
 La defensa de un servidor en la nube combina, al menos, tres planos: la **red** (quién habla con
 quién), el **host** (qué ocurre dentro de la máquina) y la **configuración/identidad** (cómo está
@@ -120,20 +120,21 @@ e inteligencia de amenazas sin que el equipo mantenga firmas ni infraestructura.
 cobertura de **identidad y configuración** —detecta llamadas de API sospechosas, llaves filtradas o
 instancias comunicándose con dominios maliciosos— que las herramientas de host y red no ven. Su
 debilidad para este proyecto es que solo funciona dentro de AWS y cobra por volumen analizado, lo
-que lo descarta para un laboratorio local sin costo.
+que lo descarta para un laboratorio local sin costo (Amazon Web Services [AWS], s. f.-a).
 
 **Wazuh.** Es una plataforma **SIEM + HIDS** de código abierto. El *manager* recibe los eventos de
 agentes ligeros instalados en cada servidor y les aplica reglas y decodificadores; el *indexer*
 (basado en OpenSearch) almacena y busca, y el *dashboard* visualiza. Para TiendaCR aporta tres
 capacidades decisivas: la lectura de los registros de autenticación y web (fuerza bruta), la
 **integridad de archivos** en tiempo real (detección del webshell) y la **respuesta automática**.
-Su costo es nulo, pero consume memoria (de ahí el dimensionamiento del SIEM a 5 GB).
+Su costo es nulo, pero consume memoria (de ahí el dimensionamiento del SIEM a 5 GB) (Wazuh Inc., 2026).
 
 **Suricata.** Es un **IDS/IPS de red** que inspecciona el tráfico y reconstruye la capa de
 aplicación (HTTP, TLS, DNS…). Funciona con firmas —el conjunto Emerging Threats Open trae ~53 500—
 y permite escribir reglas propias sencillas. Es el ojo de red del SOC: ve el escaneo de puertos y
 las cadenas de inyección en las URL. Su límite es que no ve dentro del tráfico cifrado sin
-descifrarlo y que solo observa la red, no lo que ocurre dentro del host.
+descifrarlo y que solo observa la red, no lo que ocurre dentro del host (Open Information Security
+Foundation [OISF], 2026).
 
 **Falco** y **CrowdSec** se evaluaron pero no se usaron. Falco observa las *llamadas al sistema*
 del host y los contenedores (excelente para detectar que un proceso web lanza una shell), pero no
@@ -153,13 +154,13 @@ respuesta `firewall-drop` exigida en 2.6. GuardDuty se incluye como referencia d
 gestionado, útil para discutir el reparto de responsabilidad, pero su dependencia de AWS y su costo
 por volumen lo hacen inviable aquí.
 
-### 1.2 Modelo de responsabilidad compartida
+### 3.2 Modelo de responsabilidad compartida (1.2)
 
 El modelo de responsabilidad compartida define qué asegura el proveedor de nube y qué asegura el
 cliente, y varía según el tipo de servicio (IaaS, PaaS o SaaS). Este proyecto usa un servidor de
 tipo **máquina virtual (IaaS)**, el modelo en el que **más responsabilidad recae sobre el cliente**.
 Se toma AWS como proveedor de referencia; en el laboratorio local el papel del "proveedor" lo
-cumple el administrador del host KVM.
+cumple el administrador del host KVM (AWS, s. f.-b).
 
 | Capa | Responsable | En este proyecto |
 |---|---|---|
@@ -180,18 +181,19 @@ SQL de TiendaCR y roba la base de datos, la falla es **del cliente**, no del pro
 aplicación y su configuración están en la capa que el cliente administra. Este proyecto cubre
 precisamente esa mitad del cliente: endurecer el SO, restringir el acceso, monitorear y responder.
 
-### 1.3 Análisis de riesgos del escenario (NIST SP 800-30)
+### 3.3 Análisis de riesgos del escenario (1.3)
 
-Se aplica el método de **NIST SP 800-30 Rev. 1**, simplificado. El proceso tiene cuatro pasos:
+Se aplica el método de **NIST SP 800-30 Rev. 1**, simplificado (National Institute of Standards
+and Technology [NIST], 2012a). El proceso tiene cuatro pasos:
 (1) **preparar** la evaluación definiendo el alcance —la arquitectura de tres máquinas—; (2)
 **realizar** la evaluación, que a su vez identifica activos, fuentes de amenaza, vulnerabilidades,
 y determina la probabilidad y el impacto para derivar el nivel de riesgo; (3) **comunicar** los
 resultados —esta sección y la matriz—; y (4) **mantener** la evaluación, que aquí corresponde a la
-reevaluación del riesgo residual tras aplicar los controles (§8). El riesgo se entiende como la
+reevaluación del riesgo residual tras aplicar los controles (§10). El riesgo se entiende como la
 combinación de la **probabilidad** de que una amenaza explote una vulnerabilidad y el **impacto**
 resultante sobre la confidencialidad, la integridad o la disponibilidad.
 
-#### 1.3.1 Inventario de activos y su valor
+#### 3.3.1 Inventario de activos y su valor
 
 Se valora cada activo según su necesidad de **confidencialidad (C)**, **integridad (I)** y
 **disponibilidad (D)**, y se asigna un valor global.
@@ -205,7 +207,7 @@ Se valora cada activo según su necesidad de **confidencialidad (C)**, **integri
 | A5. Llaves SSH y credenciales | Alta | Alta | Baja | Crítico | Su compromiso da acceso administrativo total |
 | A6. Red interna del laboratorio | Media | Media | Alta | Medio | Canal entre máquinas; su corte detiene la operación |
 
-#### 1.3.2 Amenazas y vulnerabilidades por activo
+#### 3.3.2 Amenazas y vulnerabilidades por activo
 
 | Activo | Fuente de amenaza | Vulnerabilidad asociada |
 |---|---|---|
@@ -217,7 +219,7 @@ Se valora cada activo según su necesidad de **confidencialidad (C)**, **integri
 | A4 | Atacante o error de diseño | SIEM subdimensionado o saturado; respuesta mal ajustada |
 | A6 | Reconocimiento previo | Visibilidad de puertos y servicios por escaneo |
 
-#### 1.3.3 Matriz de riesgos (probabilidad × impacto)
+#### 3.3.3 Matriz de riesgos (probabilidad × impacto)
 
 Escala: Baja(1) / Media(2) / Alta(3). Nivel = P×I → 1–2 Bajo, 3–4 Medio, 6–9 Alto.
 
@@ -240,9 +242,10 @@ De los doce riesgos, **siete son de nivel Alto**, y los tres más altos (R1, R2,
 exactamente a los ataques que se ejecutan y detectan en la fase 2, lo que conecta el análisis
 teórico con la demostración práctica.
 
-#### 1.3.4 Puntajes CVSS v3.1 de vulnerabilidades reales usadas
+#### 3.3.4 Puntajes CVSS v3.1 de vulnerabilidades reales usadas
 
-Se calcula el puntaje **CVSS v3.1** de las tres vulnerabilidades explotadas en el proyecto. El
+Se calcula el puntaje **CVSS v3.1** (FIRST, 2019) de las tres vulnerabilidades explotadas en el
+proyecto, clasificadas según el OWASP Top 10 (OWASP Foundation, 2021). El
 vector describe cómo se explota (métricas de explotabilidad) y qué daño causa (métricas de impacto).
 
 **V1 — Inyección SQL (ataque 3).** CWE-89 / OWASP A03:2021-Injection.
@@ -264,7 +267,7 @@ Vector `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N` → **Base 9.1 (Crítica)**.
 - *Privileges Required: None* — no se necesita sesión previa para intentar adivinar la contraseña,
   lo que eleva la explotabilidad respecto de V1 y V2 y lleva el puntaje a Crítico.
 
-#### 1.3.5 Plan de tratamiento
+#### 3.3.5 Plan de tratamiento
 
 Para cada riesgo se decide **mitigar, transferir, aceptar o evitar**, con un control y un
 responsable.
@@ -284,11 +287,11 @@ responsable.
 | R11 | Aceptar | Es inevitable; se monitorea (reglas 1000001/2) | SOC |
 | R12 | Mitigar | Normalizar rutas; `open_basedir` | Dev |
 
-La **reevaluación** del riesgo residual, tras aplicar los controles, está en §8.
+La **reevaluación** del riesgo residual, tras aplicar los controles, está en §10.
 
 ---
 
-## Fase 2. Implementación, ataque, detección y respuesta
+## Fase 2 — Implementación, ataque, detección y respuesta
 
 ### 4. Arquitectura y despliegue (2.1)
 
@@ -434,7 +437,7 @@ inventario para priorizar, no como 4302 fallas explotables.
 ### 7. Ataques controlados y detecciones (2.4)
 
 Para cada ataque se documenta el comando, la regla que lo detectó, el tiempo hasta la alerta y la
-técnica MITRE ATT&CK. Todos se ejecutaron desde la máquina atacante contra 10.10.10.20.
+técnica MITRE ATT&CK (MITRE, 2026). Todos se ejecutaron desde la máquina atacante contra 10.10.10.20.
 
 | # | Ataque | Herramienta / comando | Regla que detectó | Tiempo | MITRE |
 |---|---|---|---|---|---|
@@ -515,7 +518,7 @@ usuarios detrás de una misma IP pública (por ejemplo, de una empresa o una red
 ### 9. Plan de respuesta a incidentes (2.7)
 
 Aplicado al **ataque 2 (fuerza bruta contra el login)**, siguiendo las fases de **NIST SP 800-61
-Rev. 2**. Roles: _Analista SOC_ (monitorea y contiene) y _Administrador_ (erradica y recupera).
+Rev. 2** (NIST, 2012b). Roles: _Analista SOC_ (monitorea y contiene) y _Administrador_ (erradica y recupera).
 
 | Fase | Acciones | Tiempo objetivo |
 |---|---|---|
@@ -556,16 +559,26 @@ instrucción SQL, de modo que un `' OR '1'='1` deja de ser ejecutable. Se repiti
 
 **Reevaluación del riesgo residual** (paso 4 de NIST 800-30, "mantener la evaluación"):
 
-| # | Nivel inicial | Control aplicado | Riesgo residual |
-|---|---|---|---|
-| R1 (SQLi) | Alto (9) | Consultas parametrizadas + IDS | **Bajo (2)** |
-| R2 (Webshell) | Alto (9) | Validación de subida + FIM | **Medio (4)** |
-| R3 (Fuerza bruta) | Alto (9) | SSH con llave + respuesta automática | **Bajo (2)** |
-| R5 (Exposición) | Alto (6) | UFW deny por defecto | **Bajo (2)** |
-| R7 (Credenciales) | Alto (6) | Cambio de credenciales (pendiente de política) | **Medio (4)** |
+| # | Riesgo | Nivel inicial | Control aplicado | P | I | Riesgo residual |
+|---|---|---|---|---|---|---|
+| R1 | Inyección SQL | Alto (9) | Consultas parametrizadas + IDS (1000004/5/6) | 1 | 2 | **Bajo (2)** |
+| R2 | Webshell | Alto (9) | Validación de subida (nivel `impossible`) + FIM 100120 | 2 | 2 | **Medio (4)** |
+| R3 | Fuerza bruta | Alto (9) | SSH solo con llave + respuesta automática | 1 | 2 | **Bajo (2)** |
+| R4 | XSS | Medio (4) | Codificación de salida del nivel `impossible` | 1 | 2 | **Bajo (2)** |
+| R5 | Exposición de servicios | Alto (6) | UFW deny por defecto, solo IP del equipo | 1 | 2 | **Bajo (2)** |
+| R6 | Software sin parches | Alto (6) | SO actualizado + detección de vulnerabilidades de Wazuh | 1 | 3 | **Medio (3)** |
+| R7 | Credenciales por defecto | Alto (6) | Cambio de credenciales (pendiente de política) | 2 | 2 | **Medio (4)** |
+| R8 | Fuga y descifrado de hashes | Alto (6) | SQLi corregida (la fuga es menos probable); MD5 se mantiene | 1 | 3 | **Medio (3)** |
+| R9 | Caída del SIEM | Alto (6) | SIEM dimensionado a 5 GB de RAM | 1 | 3 | **Medio (3)** |
+| R10 | Bloqueo de tráfico legítimo | Medio (4) | Lista blanca + timeout de 180 s (aceptado) | 1 | 2 | **Bajo (2)** |
+| R11 | Reconocimiento | Medio (3) | Aceptado; monitoreado con reglas 1000001/2 | 3 | 1 | **Medio (3)** |
+| R12 | Path traversal | Medio (4) | Validación de rutas del nivel `impossible` | 1 | 2 | **Bajo (2)** |
 
-El riesgo residual de R2 y R7 queda en Medio porque dependen además de controles organizativos
-(política de contraseñas, revisión de subidas) que exceden la configuración técnica.
+Tras los controles **ningún riesgo queda en nivel Alto**: seis de los doce bajan a Bajo y seis
+quedan en Medio. R2 y R7 siguen en Medio porque dependen además de controles organizativos
+(política de contraseñas, revisión de subidas) que exceden la configuración técnica; R6, R8 y R9
+porque su impacto sigue siendo alto aunque la probabilidad baje; y R11 porque el escaneo es
+inevitable y se acepta, limitándose a monitorearlo.
 
 ---
 
@@ -592,15 +605,17 @@ El riesgo residual de R2 y R7 queda en Medio porque dependen además de controle
 
 ## 12. Referencias (APA)
 
+- Amazon Web Services. (s. f.-a). *Amazon GuardDuty user guide*. https://docs.aws.amazon.com/guardduty/
+- Amazon Web Services. (s. f.-b). *Shared responsibility model*. https://aws.amazon.com/compliance/shared-responsibility-model/
 - Dotson, C. (2019). *Practical cloud security: A guide for secure design and deployment*. O'Reilly Media.
-- Guijarro Olivares, J., Caparrós Ramírez, J. y Cubero Luque, L. (2019). *DevOps y seguridad cloud*. Editorial UOC.
-- Wazuh Inc. (2026). *Wazuh documentation (v4.14)*. https://documentation.wazuh.com/
-- Open Information Security Foundation. (2026). *Suricata user guide (v7)*. https://docs.suricata.io/
-- National Institute of Standards and Technology. (2012). *Guide for conducting risk assessments (NIST SP 800-30 Rev. 1)*. https://doi.org/10.6028/NIST.SP.800-30r1
-- National Institute of Standards and Technology. (2012). *Computer security incident handling guide (NIST SP 800-61 Rev. 2)*. https://doi.org/10.6028/NIST.SP.800-61r2
-- MITRE. (2026). *MITRE ATT&CK Matrix for Enterprise*. https://attack.mitre.org/
 - FIRST. (2019). *Common Vulnerability Scoring System v3.1: Specification document*. https://www.first.org/cvss/
+- Guijarro Olivares, J., Caparrós Ramírez, J. y Cubero Luque, L. (2019). *DevOps y seguridad cloud*. Editorial UOC.
+- MITRE. (2026). *MITRE ATT&CK Matrix for Enterprise*. https://attack.mitre.org/
+- National Institute of Standards and Technology. (2012a). *Guide for conducting risk assessments (NIST SP 800-30 Rev. 1)*. https://doi.org/10.6028/NIST.SP.800-30r1
+- National Institute of Standards and Technology. (2012b). *Computer security incident handling guide (NIST SP 800-61 Rev. 2)*. https://doi.org/10.6028/NIST.SP.800-61r2
+- Open Information Security Foundation. (2026). *Suricata user guide (v7)*. https://docs.suricata.io/
 - OWASP Foundation. (2021). *OWASP Top 10:2021*. https://owasp.org/Top10/
+- Wazuh Inc. (2026). *Wazuh documentation (v4.14)*. https://documentation.wazuh.com/
 
 ---
 
@@ -620,7 +635,7 @@ El riesgo residual de R2 y R7 queda en Medio porque dependen además de controle
 
 ---
 
-## Anexos
+## 14. Anexos
 
 - **Anexo A.** Repositorio con el README reproducible, scripts de infraestructura y ataque, reglas
   propias y archivos de configuración.

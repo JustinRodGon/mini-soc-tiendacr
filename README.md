@@ -127,8 +127,8 @@ vm/         imágenes base de las VM (no se suben, ver vm/DESCARGAR.md)
 
 - **No contiene** contraseñas, llaves ni credenciales (ver `.gitignore`). El `.env` con la
   contraseña de la BD se genera en la VM y no se sube; las llaves SSH viven solo en el host.
-- Credenciales por defecto de DVWA en laboratorio: `admin` / `password` (se cambian en la
-  remediación, §8 del informe).
+- Credenciales por defecto de DVWA en laboratorio: `admin` / `password` (deben cambiarse
+  como parte de la remediación, §10 del informe).
 
 ## Remediación
 
